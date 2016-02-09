@@ -2,54 +2,83 @@ import os
 import time
 from random import randint, getrandbits
 
-def display_grid(x, y):
-    grid = [["." for i in range(len(x)+1)] for j in range(len(y)+1)]
+VIEW_GRID_START = 0
+VIEW_GRID_END = 11
+NUM_GRID_START = 0
+NUM_GRID_END = 11
+NUM_OF_NUMS = 9
 
-    for next_num_to_display in range(HOW_MANY_NUMBERS_TO_DISPLAY-1):
-        # The arrays are zero indexed so add one to make the number shown 1-9
-        print(x[next_num_to_display])
-        grid[y[next_num_to_display]][x[next_num_to_display]] = str(next_num_to_display+1)
+# 0 -> 10 : view grid
+# 1 -> 9 : number grid
+
+#    0 1 2 3 4 5 6 7 8 9 10
+# 0  . . . . . . . . . . . 
+# 1  . o o o o o o o o o .
+# 2  . o o o o o o o o o .
+# 3  . o o o o o o o o o .
+# 4  . o o o o o o o o o .
+# 5  . o o o o o o o o o .
+# 6  . o o o o o o o o o .
+# 7  . o o o o o o o o o .
+# 8  . o o o o o o o o o .
+# 9  . o o o o o o o o o .
+# 10 . . . . . . . . . . . 
+
+def display_grid(x, y):
+    grid = [["." for i in range(VIEW_GRID_START, VIEW_GRID_END)] for j in range(VIEW_GRID_START, VIEW_GRID_END)]
+
+    # Put the numbers into the view grid
+    for next_num in range(len(x)):
+        grid[y[next_num]][x[next_num]] = str(next_num+1)
 
     os.system('clear')
 
-    for i in range(9):
+    for i in range(11):
             print(" ".join(grid[i]))    
 
 score = 0
+another_go = True
 
-HOW_MANY_NUMBERS_TO_DISPLAY = 9
-SIZE_OF_GRID = 9
+while (another_go):
+    
+    x = [randint(1,9) for i in range(NUM_OF_NUMS)]
+    y = [randint(1,9) for i in range(NUM_OF_NUMS)]
 
-# x and y are arrays from 0..8 containing random numbers from 1..9.
-# this gives us 9 random x,y locations
-x = [randint(1,SIZE_OF_GRID) for i in range(0,HOW_MANY_NUMBERS_TO_DISPLAY-1)]
-y = [randint(1,SIZE_OF_GRID) for i in range(0,HOW_MANY_NUMBERS_TO_DISPLAY-1)]
+    # Display each number number in its random x,y location
+    display_grid(x, y)
 
-# Display each number number in its random x,y location
-display_grid(x, y)
+    # Wait for a key
+    input("")        
 
-# Wait for a key
-input("")        
+    # Choose which number to move left or right
+    num_to_move = randint(0,NUM_OF_NUMS-1)
 
-# Move a random number left or right
-num_to_move = randint(0,HOW_MANY_NUMBERS_TO_DISPLAY-1)
+    if (getrandbits(1) == 1):
+        x[num_to_move] = x[num_to_move] + 1
+        print("moving %s right" % num_to_move)
+    else:
+        x[num_to_move] = x[num_to_move] - 1
+        print("moving %s left" % num_to_move)
 
-if (getrandbits(1) == 1):
-    x[num_to_move] = x[num_to_move] + 1
-    print("moving %s right" % num_to_move)
-else:
-    x[num_to_move] = x[num_to_move] - 1
-    print("moving %s left" % num_to_move)
+    display_grid(x, y)
+    time.sleep(0.1)
 
-display_grid(x, y)
-time.sleep(0.5)
+    os.system('clear')
+    print("WHICH NUMBER MOVED")
+    user_guess = input("")
 
-os.system('clear')
-print("WHICH NUMBER MOVED")
-user_guess = input("")
-
-if (user_guess == (num_to_move+1)):
-    print("WELL SPIED!")
-    score += 1
-    print("YOU NOW HAVE %S POINTS" % score)
-    print("\nPRESS A KEY")
+    if (user_guess == str(num_to_move+1)):
+        print("WELL SPIED!")
+        score += 1
+        print("YOU NOW HAVE %s POINTS" % score)
+        print("\nPRESS ENTER KEY")
+        input("")  
+    else:
+        print("\nWRONG END OF GO")
+        print("CORRECT ANSWER WAS %s" % str(num_to_move+1))
+        print("YOU SCORED %s POINTS" % score)
+        score = 0 # reset score for next go if there is one
+        print("ANOTHER GO (Y/N)")
+        another_go_input = input("")
+        if (another_go_input.upper() != 'Y'):
+            another_go = False
